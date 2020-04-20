@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body,
+        html {
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+
+        body {
+            background: url(img2/bg.jpg);
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+        }
+
+        .card {
+            width: 150px;
+            height: 250px;
+            /* 設定子元素在3D空間內 */
+            transform-style: preserve-3d;
+            position: relative;
+            /* 整張卡片選轉 */
+            transform: rotateY(180deg);
+            /* 0.5秒翻轉動畫 */
+            transition: transform .5s;
+            float: left;
+            margin: 10px;
+        }
+
+        .front {
+            width: 100%;
+            height: 100%;
+            /* contain:容器內至少有一張完整的圖 */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+        }
+
+        .back {
+            width: 100%;
+            height: 100%;
+            background-image: url(./img/Gray_back.jpg);
+            /* contain:容器內至少有一張完整的圖 */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            /* 把背面的div轉到front後面貼齊 */
+            transform: rotateY(180deg);
+            /* 修改淡出動畫 */
+            backface-visibility: hidden;
+        }
+
+
+
+        .open {
+            transform: rotateY(0deg);
+        }
+
+        #text {
+            float: left;
+            color: white;
+            margin-left: 30px;
+            margin-top: 30px;
+            font-size: 30px;
+        }
+
+        #main {
+            margin: 0;
+            padding: 0;
+            width: 1920px;
+            height: 1080px;
+            background: black;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+        }
+
+
+        #left {
+            width: 800px;
+            height: 1080px;
+            margin: auto;
+            float: left;
+            background: url(img2/left.jpg);
+            background-repeat: no-repeat;
+            text-align: center;
+
+        }
+
+        #right {
+            width: 1120px;
+            height: 1080px;
+            margin: auto;
+            float: right;
+            background: url(img2/right.jpg);
+            background-repeat: no-repeat;
+            position: relative;
+
+
+        }
+
+        #game {
+            width: 1120px;
+            height: 1080px;
+            position: absolute;
+            left: 5%;
+
+
+            /* margin-left: -180px;
+            margin-top: -300px; */
+        }
+
+        .img {
+            float: left;
+            width: 300px;
+            height: 250px;
+            margin: 0x 25px 0px 25px;
+            /* background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center; */
+            background: black;
+
+        }
+
+        h1 {
+            color: white;
+            background-color: darkblue;
+            display: inline-block;
+            width: 350px;
+            height: 50px;
+            line-height: 50px;
+            margin-bottom: 0;
+            float: left;
+            margin-right: 10px;
+        }
+
+        h2 {
+            float: left;
+            margin-top: 40px;
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="text">
+        <br>
+        <br>
+        <p>玩家：</p>
+        <p>花費時間：</p>
+        <p>你的程度為：</p>
+    </div>
+    <div id="main">
+        <div id="left">
+            <h1>電影Play Play Play對</h1>
+            <h2>選擇3個同一部電影的元素即配對成功</h2>
+
+        </div>
+        <div id="right">
+            <div id="game"></div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="jquery-3.5.0.min.js"></script>
+    <script>
+        $(function () {
+            let num = 0;
+            for (let i = 0; i < 24; i++) {
+                $("#game").append(`<div class="card">
+                <div class="front"></div>
+                <div class="back"></div>
+                </div>`)
+            }
+
+            // 指定數字
+            for (let i = 0; i < $(".card").length; i++) {
+                let num = i % ($(".card").length / 3) + 1
+                if (i < $(".card").length / 3) {
+                    $(".card").eq(i).find(".front").css("background-image", `url(img2/${num}A.jpg)`)
+                    $(".card").eq(i).attr("data-card", num)
+                    $(".card").eq(i).addClass(`card${num}`)
+
+                }
+
+                else if (i < $(".card").length / 3 * 2) {
+                    $(".card").eq(i).find(".front").css("background-image", `url(img2/${num}B.jpg)`)
+                    $(".card").eq(i).attr("data-card", num)
+                    $(".card").eq(i).addClass(`card${num}`)
+                }
+
+                else {
+                    $(".card").eq(i).find(".front").css("background-image", `url(img2/${num}C.jpg)`)
+                    $(".card").eq(i).attr("data-card", num)
+                    $(".card").eq(i).addClass(`card${num}`)
+                }
+            }
+
+            // 換20次牌
+            for (let i = 0; i < 40; i++) {
+                // 隨機抽一張牌，移動到隨機一張牌後面
+                let target = Math.floor(Math.random() * $(".card").length);
+                let disk = Math.floor(Math.random() * $(".card").length);
+                $(".card").eq(target).insertAfter($(".card").eq(disk))
+            }
+
+            $(".card").on('click', function () {
+
+                if ($(".open").length < 3 && !$(this).hasClass("open")) {
+                    $(this).addClass("open")
+                }
+
+                if ($(".open").length == 3) {
+                    // 過一秒鐘翻回來
+                    setTimeout(() => {
+                        $(".open").removeClass("open")
+                    }, 1000)
+
+                }
+
+                if ($(".open").eq(0).attr("class") ==
+                    $(".open").eq(1).attr("class") && $(".open").eq(0).attr("class") == $(".open").eq(2).attr("class")) {
+                    $(".open").fadeTo(1000, 0).addClass("ok")
+                    $("#left").append(`<div class="img" id="img${num}"></div>`)
+                    $(`#img${num}`).css("background-image", `url(img2/${$(".open").eq(0).attr("data-card")}D.jpg)`)
+                    num++
+                }
+
+                //如果都配對完 
+                if ($(".ok").length == $(".card").length) {
+                    // 等一秒淡出後再彈出訊息
+                    setTimeout(() => {
+                        swal.fire({
+                            icon: "success",
+                            title: "You Won!!",
+                            text: "恭喜過關",
+                        })
+                    }, 1000);
+                }
+            })
+        })
+
+
+    </script>
+</body>
+
+</html>
