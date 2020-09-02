@@ -6,22 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        body,
-        html {
-            top: 0;
-            bottom: 0;
-            right: 0;
-            left: 0;
-        }
-
         body {
             background: url(img2/bg.jpg);
             font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
         }
 
+        #btn-start {
+            background: rgba(255, 0, 0);
+            color: white;
+            width: 75px;
+            height: 25px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
         .card {
-            width: 150px;
-            height: 250px;
+            width: 75px;
+            height: 125px;
             /* 設定子元素在3D空間內 */
             transform-style: preserve-3d;
             position: relative;
@@ -30,7 +31,7 @@
             /* 0.5秒翻轉動畫 */
             transition: transform .5s;
             float: left;
-            margin: 10px;
+            margin: 5px;
         }
 
         .front {
@@ -67,16 +68,16 @@
         #text {
             float: left;
             color: white;
-            margin-left: 30px;
-            margin-top: 30px;
-            font-size: 30px;
+            margin-left: 15px;
+            margin-top: 15px;
+            font-size: 15px;
         }
 
         #main {
             margin: 0;
             padding: 0;
-            width: 1920px;
-            height: 1080px;
+            width: 960px;
+            height: 540px;
             background: black;
             position: absolute;
             top: 50%;
@@ -87,8 +88,8 @@
 
 
         #left {
-            width: 800px;
-            height: 1080px;
+            width: 400px;
+            height: 540px;
             margin: auto;
             float: left;
             background: url(img2/left.jpg);
@@ -98,8 +99,8 @@
         }
 
         #right {
-            width: 1120px;
-            height: 1080px;
+            width: 560px;
+            height: 540px;
             margin: auto;
             float: right;
             background: url(img2/right.jpg);
@@ -110,8 +111,8 @@
         }
 
         #game {
-            width: 1120px;
-            height: 1080px;
+            width: 560px;
+            height: 540px;
             position: absolute;
             left: 5%;
 
@@ -122,32 +123,33 @@
 
         .img {
             float: left;
-            width: 300px;
-            height: 250px;
-            margin: 0x 25px 0px 25px;
-            /* background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center; */
-            background: black;
+            width: 150px;
+            height: 125px;
+            margin: 0px 10px 0px 10px;
+            background-size: cover;
 
         }
 
-        h1 {
+        .text1 {
             color: white;
             background-color: darkblue;
             display: inline-block;
-            width: 350px;
-            height: 50px;
-            line-height: 50px;
-            margin-bottom: 0;
+            height: 25px;
+            line-height: 25px;
+            margin-top: 0px;
+            margin-bottom: 5px;
             float: left;
-            margin-right: 10px;
+            margin-right: 5px;
+            font-size: 14px;
         }
 
-        h2 {
+        .text2 {
             float: left;
-            margin-top: 40px;
+            margin-top: 0px;
             background: white;
+            color: black;
+            font-size: 14px;
+            line-height: 25px;
         }
     </style>
 </head>
@@ -156,15 +158,15 @@
     <div id="text">
         <br>
         <br>
-        <p>玩家：</p>
-        <p>花費時間：</p>
-        <p>你的程度為：</p>
+        <input type="button" value="開始遊戲" id="btn-start">
+        <p>玩家：<span id="name"> </span></p>
+        <p>剩餘時間：<span id="time">100</span>秒</p>
+        <p>完成組數：<span id="score">0</span>組</p>
     </div>
     <div id="main">
         <div id="left">
-            <h1>電影Play Play Play對</h1>
-            <h2>選擇3個同一部電影的元素即配對成功</h2>
-
+            <h2 class="text1">電影Play Play Play 對</h2>
+            <h2 class="text2">選擇3個同一部電影的元素即配對成功</h2>
         </div>
         <div id="right">
             <div id="game"></div>
@@ -175,6 +177,20 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script src="jquery-3.5.0.min.js"></script>
     <script>
+        // 網頁後輸入玩家姓名
+        $(document).ready(function () {
+            const nickname = prompt('歡迎來到電影場景大考驗，請輸入你的暱稱？');
+            alert('你好，' + nickname + ' :' + '\n請在時間內將同部電影場景配對起來，確認後請按開始遊戲，時間將會開始倒數。')
+            let name = "";
+            name = nickname;
+            $("#name").text(name);
+        })
+        let score = 0;
+        let timeleft = 100;
+        let gametimer = 0;
+        let inGame = false;
+
+        // 產生24張卡片
         $(function () {
             let num = 0;
             for (let i = 0; i < 24; i++) {
@@ -215,43 +231,111 @@
                 $(".card").eq(target).insertAfter($(".card").eq(disk))
             }
 
-            $(".card").on('click', function () {
+            $("#btn-start").click(function () {
+                $(this).attr("disabled", true);
+                $(this).css("background", "rgba(255, 0, 0,0.6)").css("color", "black").css("cursor", "auto");
+                $(".card").css("cursor", "pointer");
+                inGame = true;
+                timeleft = 100;
+                $("#time").text(timeleft);
+                score = 0;
+                $("#score").text(score);
 
-                if ($(".open").length < 3 && !$(this).hasClass("open")) {
-                    $(this).addClass("open")
-                }
+                $(".card").on('click', function () {
+                    if ($(".open").length < 3 && !$(this).hasClass("open")) {
+                        $(this).addClass("open")
+                    }
 
-                if ($(".open").length == 3) {
-                    // 過一秒鐘翻回來
-                    setTimeout(() => {
-                        $(".open").removeClass("open")
-                    }, 1000)
+                    if ($(".open").length == 3) {
+                        // 過一秒鐘翻回來
+                        setTimeout(() => {
+                            $(".open").removeClass("open")
+                        }, 1000)
 
-                }
+                    }
 
-                if ($(".open").eq(0).attr("class") ==
-                    $(".open").eq(1).attr("class") && $(".open").eq(0).attr("class") == $(".open").eq(2).attr("class")) {
-                    $(".open").fadeTo(1000, 0).addClass("ok")
-                    $("#left").append(`<div class="img" id="img${num}"></div>`)
-                    $(`#img${num}`).css("background-image", `url(img2/${$(".open").eq(0).attr("data-card")}D.jpg)`)
-                    num++
-                }
+                    if ($(".open").eq(0).attr("class") ==
+                        $(".open").eq(1).attr("class") && $(".open").eq(0).attr("class") == $(".open").eq(2).attr("class")) {
+                        $(".open").fadeTo(1000, 0).addClass("ok")
+                        $("#left").append(`<div class="img" id="img${num}"></div>`)
+                        $(`#img${num}`).css("background-image", `url(img2/${$(".open").eq(0).attr("data-card")}D.jpg)`)
+                        num++;
+                        if (timeleft > 0) {
+                            score += 1;
+                            $("#score").text(score);
+                        }
+                    }
+                })
 
-                //如果都配對完 
-                if ($(".ok").length == $(".card").length) {
-                    // 等一秒淡出後再彈出訊息
-                    setTimeout(() => {
-                        swal.fire({
-                            icon: "success",
-                            title: "You Won!!",
-                            text: "恭喜過關",
-                        })
-                    }, 1000);
-                }
+                gametimer = setInterval(() => {
+                    $("#score").text(score);
+                    timeleft--;
+                    $("#time").text(timeleft);
+                    // 如果時間到或牌全部翻成功，則遊戲結束
+                    if (timeleft == 0 || $(".ok").length == $(".card").length) {
+                        clearInterval(gametimer);
+                        //  卡牌全翻成功且分數大於0，則是A級玩家
+                        if ($(".ok").length == $(".card").length && score == 8) {
+                            setTimeout(() => {
+                                swal.fire({
+                                    icon: "success",
+                                    title: "你是A級玩家",
+                                    text: "恭喜完成全部!!",
+                                })
+                            }, 1000)
+                        }
+                        // 如果時間到
+                        else {
+                            //完成0組 
+                            if (score == 0) {
+                                setTimeout(() => {
+                                    swal.fire({
+                                        icon: "error",
+                                        title: "輸了",
+                                        text: "請再接再厲!!",
+                                    })
+                                }, 1000)
+                            }
+                            //完成1-2組 
+                            if (score > 0 && score <= 2) {
+                                setTimeout(() => {
+                                    swal.fire({
+                                        icon: "success",
+                                        title: "你是D級玩家",
+                                        text: '恭喜完成' + score + '組!!',
+                                    })
+                                }, 1000)
+                            }
+                            //完成3-4組 
+                            if (score > 2 && score <= 4) {
+                                setTimeout(() => {
+                                    swal.fire({
+                                        icon: "success",
+                                        title: "你是C級玩家",
+                                        text: '恭喜完成' + score + '組!!',
+                                    })
+                                }, 1000)
+                            }
+                            //完成5-7組 
+                            if (score > 4 && score <= 7) {
+                                setTimeout(() => {
+                                    swal.fire({
+                                        icon: "success",
+                                        title: "你是B級玩家",
+                                        text: '恭喜完成' + score + '組!!',
+                                    })
+                                }, 1000)
+                            }
+                        }
+                        setTimeout(() => {
+                            inGame = false;
+                            $(this).attr("disabled", false);
+                            window.location.reload();
+                        }, 5000)
+                    }
+                }, 1000)
             })
         })
-
-
     </script>
 </body>
 
