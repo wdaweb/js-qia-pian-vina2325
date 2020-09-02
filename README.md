@@ -1,5 +1,5 @@
 ## 翻牌遊戲 | 電影PlayPlayPlay對
-[DEMO](https://vina2325.github.io/js-qia-pian-vina2325/cardgame.html "Title")<br>
+[DEMO](https://vina2325.github.io/js-qia-pian-vina2325/cardgame "Title")<br>
 ![](./img3/demo1.png)
 <開始畫面>
 
